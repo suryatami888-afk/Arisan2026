@@ -3,148 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARISAN 2026 - Luxury Edition</title>
+    <title>ARISAN 2026 - Realtime Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
+    <!-- LOAD FIREBASE SDK (Sangat Penting) -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Bebas+Neue&display=swap');
-        
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
         ::-webkit-scrollbar { width: 0px; }
-
-        /* BAGIAN HEADER DENGAN ANIMASI TRADING BERGERAK */
-        .header-gradient { 
-            background: linear-gradient(135deg, rgba(23, 11, 51, 0.95) 0%, rgba(46, 16, 101, 0.9) 100%);
-            position: relative;
-            overflow: hidden;
-            border-bottom: 2px solid rgba(168, 85, 247, 0.3);
-        }
-
-        #tradingCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
+        .header-gradient { background: linear-gradient(135deg, rgba(23, 11, 51, 0.95) 0%, rgba(46, 16, 101, 0.9) 100%); position: relative; overflow: hidden; border-bottom: 2px solid rgba(168, 85, 247, 0.3); }
+        #tradingCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; }
         .header-content { position: relative; z-index: 10; }
-
-        /* TOMBOL RESET MODEL KOLOM NEON ELEGAN (TIDAK SILAU) */
-        .neon-reset-btn {
-            background: rgba(188, 19, 254, 0.1);
-            border: 1px solid rgba(188, 19, 254, 0.5);
-            padding: 6px 16px;
-            border-radius: 12px;
-            color: #e2e8f0;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.2);
-            backdrop-filter: blur(4px);
-        }
-
-        .neon-reset-btn:active {
-            transform: scale(0.95);
-            background: rgba(188, 19, 254, 0.3);
-            box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
-        }
-
-        .money-rain-container {
-            position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
-        }
-        .money-particle {
-            position: absolute; color: rgba(255, 255, 255, 0.15); font-size: 16px; top: -30px;
-            animation: moneyFall linear infinite;
-        }
-        @keyframes moneyFall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(350px) rotate(360deg); opacity: 0; }
-        }
-
-        .ghost-number {
-            font-family: 'Bebas Neue', cursive;
-            position: absolute; right: 10px; top: -10px;
-            font-size: 80px; opacity: 0.05; pointer-events: none;
-        }
-
-        .rank-badge {
-            font-family: 'Bebas Neue', cursive;
-            clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
-            padding: 4px 15px 4px 10px; font-size: 18px;
-            background: #ffffff; color: #0f172a;
-        }
-
-        .card-gold {
-            background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%) !important;
-            border-left: 8px solid #10b981;
-            box-shadow: 0 20px 50px -10px rgba(6, 78, 59, 0.6);
-            transform: scale(1.02);
-            position: relative;
-        }
-
+        .neon-reset-btn { background: rgba(188, 19, 254, 0.1); border: 1px solid rgba(188, 19, 254, 0.5); padding: 6px 16px; border-radius: 12px; color: #e2e8f0; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(188, 19, 254, 0.2); backdrop-filter: blur(4px); }
+        .money-rain-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+        .money-particle { position: absolute; color: rgba(255, 255, 255, 0.15); font-size: 16px; top: -30px; animation: moneyFall linear infinite; }
+        @keyframes moneyFall { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(350px) rotate(360deg); opacity: 0; } }
+        .ghost-number { font-family: 'Bebas Neue', cursive; position: absolute; right: 10px; top: -10px; font-size: 80px; opacity: 0.05; pointer-events: none; }
+        .rank-badge { font-family: 'Bebas Neue', cursive; clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%); padding: 4px 15px 4px 10px; font-size: 18px; background: #ffffff; color: #0f172a; }
+        .card-gold { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%) !important; border-left: 8px solid #10b981; box-shadow: 0 20px 50px -10px rgba(6, 78, 59, 0.6); transform: scale(1.02); position: relative; }
         .card-red { background: linear-gradient(145deg, #450a0a 0%, #180505 100%); border-left: 4px solid #ef4444; }
         .card-normal { background: #0f172a; border: 1px solid #1e293b; border-left: 4px solid #a855f7; }
-
         .btn-active-gold { background: #ffffff !important; color: #064e3b !important; font-weight: 900; }
         .btn-glass-green { background: rgba(255, 255, 255, 0.08); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); }
-        
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            80% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .pop-animation { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        .premium-finish-label {
-            background: linear-gradient(-45deg, #059669, #34d399, #059669, #34d399);
-            background-size: 400% 400%;
-            color: #f0fdf4;
-            padding: 12px 28px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 900;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.6);
-            animation: moveGradient 3s ease infinite, fadeIn 0.6s ease-out;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        @keyframes moveGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .premium-finish-label { background: linear-gradient(-45deg, #059669, #34d399, #059669, #34d399); background-size: 400% 400%; color: #f0fdf4; padding: 12px 28px; border-radius: 50px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 12px; text-transform: uppercase; letter-spacing: 2px; animation: moveGradient 3s ease infinite; border: 2px solid rgba(255, 255, 255, 0.3); }
+        @keyframes moveGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
 <body class="pb-36">
 
-    <!-- POP-UP PERAYAAN OTOMATIS -->
+    <!-- CELEBRATION OVERLAY -->
     <div id="celebrationOverlay" class="fixed inset-0 z-[110] hidden bg-black/80 backdrop-blur-xl flex items-center justify-center p-8">
-        <div class="pop-animation bg-gradient-to-b from-slate-900 to-black border-2 border-emerald-500/50 p-8 rounded-[40px] text-center max-w-sm w-full shadow-[0_0_50px_rgba(16,185,129,0.3)]">
-            <div class="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-emerald-500/30">
-                <i class="fas fa-trophy text-5xl text-emerald-400"></i>
-            </div>
+        <div class="bg-gradient-to-b from-slate-900 to-black border-2 border-emerald-500/50 p-8 rounded-[40px] text-center max-w-sm w-full shadow-[0_0_50px_rgba(16,185,129,0.3)]">
+            <i class="fas fa-trophy text-5xl text-emerald-400 mb-6"></i>
             <h2 class="text-3xl font-black text-white tracking-tighter mb-2">LUAR BIASA!</h2>
-            <p id="celebrationText" class="text-emerald-400 font-extrabold text-lg italic mb-6">Arisan Bulan ... Selesai</p>
-            <div class="h-[1px] w-full bg-white/10 mb-6"></div>
-            <p class="text-slate-400 text-[10px] leading-relaxed mb-8 uppercase tracking-[2px]">Semua pembayaran telah tuntas dan bukti telah divalidasi.</p>
-            <button onclick="closeCelebration()" class="w-full py-4 bg-emerald-500 text-black font-black rounded-2xl shadow-lg active:scale-95 transition-all">MANTAP!</button>
+            <p id="celebrationText" class="text-emerald-400 font-extrabold text-lg italic mb-6">Arisan Selesai!</p>
+            <button onclick="closeCelebration()" class="w-full py-4 bg-emerald-500 text-black font-black rounded-2xl">MANTAP!</button>
         </div>
     </div>
 
@@ -154,9 +52,7 @@
             <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-3xl"><i class="fas fa-times-circle"></i></button>
             <img id="modalImage" src="" class="max-w-full max-h-[75vh] rounded-2xl shadow-2xl border-2 border-white/20 object-contain">
             <div class="mt-6 text-center">
-                <button onclick="deleteBuktiCurrent()" class="bg-red-500/20 text-red-500 px-6 py-2 rounded-full text-xs font-black border border-red-500/30 uppercase tracking-widest active:scale-95 transition-all">
-                    <i class="fas fa-trash-alt mr-2"></i> Hapus Bukti
-                </button>
+                <button onclick="deleteBuktiCurrent()" class="bg-red-500/20 text-red-500 px-6 py-2 rounded-full text-xs font-black border border-red-500/30 uppercase tracking-widest">Hapus Bukti</button>
             </div>
         </div>
     </div>
@@ -164,9 +60,7 @@
     <!-- HEADER -->
     <div class="sticky top-0 z-50 bg-[#020617]">
         <div class="header-gradient pt-6 px-6 pb-14 rounded-b-[40px] shadow-2xl relative">
-            <!-- CANVAS TRADING -->
             <canvas id="tradingCanvas"></canvas>
-            
             <div class="header-content">
                 <div class="flex justify-between items-center mb-6">
                     <div class="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-3">
@@ -174,7 +68,6 @@
                         <div class="w-[1px] h-3 bg-white/20"></div>
                         <span id="liveDay" class="text-[10px] font-bold text-purple-200 uppercase tracking-widest">MINGGU</span>
                     </div>
-                    <!-- TOMBOL RESET DENGAN KOLOM NEON ELEGAN -->
                     <button onclick="resetData()" class="neon-reset-btn">Reset</button>
                 </div>
                 <h1 class="text-white text-4xl font-black tracking-tighter mb-1">𝑨𝒓𝒊𝒔𝒂𝒏 <span class="text-sm font-light tracking-widest block opacity-70">Togelup</span></h1>
@@ -197,6 +90,7 @@
 
     <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
 
+    <!-- FLOATING FOOTER STATS -->
     <div class="fixed bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur-2xl border border-white/5 p-5 rounded-[30px] flex justify-around shadow-2xl z-50">
         <div class="text-center"><p class="text-[8px] text-slate-500 uppercase font-black mb-1">Sudah Bayar</p><span id="statBayar" class="text-purple-400 font-bold text-xl">0</span></div>
         <div class="h-10 w-[1px] bg-slate-800"></div>
@@ -204,6 +98,24 @@
     </div>
 
     <script>
+        // === KONFIGURASI FIREBASE MILIK KAMU ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDg6HTS06iaFoQ8aTEwlcxRx61B4XSWZ-E",
+            authDomain: "arisan2026-79ccc.firebaseapp.com",
+            databaseURL: "https://arisan2026-79ccc-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "arisan2026-79ccc",
+            storageBucket: "arisan2026-79ccc.firebasestorage.app",
+            messagingSenderId: "684903739265",
+            appId: "1:684903739265:web:b0cd4119825751457a0280",
+            measurementId: "G-TYB9N0L6MH"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const arisanRef = db.ref('data_arisan_v1');
+
+        let dataArisan = [];
         let activeUploadNo = null;
         let currentViewNo = null;
         let hasShownCelebration = false;
@@ -225,42 +137,42 @@
             { no: 14, nama: "TAUFIQ SAVALAS", bulan: "DESEMBER (THR)", sudah_bayar: false, done: false, bukti: null },
         ];
 
-        let dataArisan = JSON.parse(localStorage.getItem('arisanV3')) || initialData;
+        // MENGAMBIL DATA SECARA REALTIME (Inilah kuncinya biar antar HP sinkron)
+        arisanRef.on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                dataArisan = val;
+            } else {
+                dataArisan = initialData;
+                arisanRef.set(initialData);
+            }
+            renderData();
+        });
 
-        // ANIMASI TRADING CANVAS
+        function syncData() {
+            arisanRef.set(dataArisan);
+        }
+
+        // ANIMASI TRADING
         const canvas = document.getElementById('tradingCanvas');
         const ctx = canvas.getContext('2d');
         let points = [];
         const maxPoints = 50;
-
         function initTrading() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-            for(let i=0; i<maxPoints; i++) {
-                points.push(Math.random() * canvas.height);
-            }
+            canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+            for(let i=0; i<maxPoints; i++) points.push(Math.random() * canvas.height);
             animateTrading();
         }
-
         function animateTrading() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineWidth = 2;
-            
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.lineWidth = 2;
             points.shift();
-            let lastVal = points[points.length - 1];
-            let newVal = lastVal + (Math.random() - 0.5) * 40;
-            if(newVal < 20) newVal = 20;
-            if(newVal > canvas.height - 20) newVal = canvas.height - 20;
+            let newVal = points[points.length-1] + (Math.random()-0.5)*40;
+            if(newVal < 20) newVal = 20; if(newVal > canvas.height-20) newVal = canvas.height-20;
             points.push(newVal);
-
             const step = canvas.width / (maxPoints - 1);
-            
             for(let i=0; i < points.length - 1; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * step, points[i]);
-                ctx.lineTo((i + 1) * step, points[i+1]);
-                ctx.strokeStyle = points[i+1] < points[i] ? '#10b981' : '#ef4444';
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i * step, points[i]); ctx.lineTo((i + 1) * step, points[i+1]);
+                ctx.strokeStyle = points[i+1] < points[i] ? '#10b981' : '#ef4444'; ctx.stroke();
             }
             setTimeout(() => requestAnimationFrame(animateTrading), 100);
         }
@@ -274,85 +186,46 @@
                 img.src = event.target.result;
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
+                    const MAX_WIDTH = 500; 
                     let scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
+                    canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     const idx = dataArisan.findIndex(x => x.no === no);
-                    dataArisan[idx].bukti = canvas.toDataURL('image/jpeg', 0.6);
+                    dataArisan[idx].bukti = canvas.toDataURL('image/jpeg', 0.5);
                     dataArisan[idx].sudah_bayar = true;
-                    saveAndRender();
+                    syncData();
                 };
             };
         }
 
         function triggerUpload(no) { activeUploadNo = no; document.getElementById('fileInput').click(); }
-        function handleFileUpload(event) {
-            if (event.target.files[0]) compressAndSave(event.target.files[0], activeUploadNo);
-            event.target.value = '';
-        }
-
-        function viewBukti(no, dataUri) {
-            currentViewNo = no;
-            document.getElementById('modalImage').src = dataUri;
-            document.getElementById('modalOverlay').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-
-        function deleteBuktiCurrent() {
-            if(confirm("Hapus bukti transfer?")) {
-                const idx = dataArisan.findIndex(x => x.no === currentViewNo);
-                dataArisan[idx].bukti = null;
-                closeModal();
-                saveAndRender();
-            }
-        }
-
-        function toggleStatus(no, field) {
-            const idx = dataArisan.findIndex(x => x.no === no);
-            dataArisan[idx][field] = !dataArisan[idx][field];
-            saveAndRender();
-        }
-
-        function saveAndRender() { localStorage.setItem('arisanV3', JSON.stringify(dataArisan)); renderData(); }
-
-        function resetData() {
-            if(confirm("Reset semua data?")) {
-                dataArisan = initialData.map(x => ({...x, sudah_bayar: false, done: false, bukti: null}));
-                hasShownCelebration = false;
-                saveAndRender();
-            }
-        }
+        function handleFileUpload(event) { if (event.target.files[0]) compressAndSave(event.target.files[0], activeUploadNo); event.target.value = ''; }
+        function viewBukti(no, dataUri) { currentViewNo = no; document.getElementById('modalImage').src = dataUri; document.getElementById('modalOverlay').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
+        function deleteBuktiCurrent() { if(confirm("Hapus bukti?")) { const idx = dataArisan.findIndex(x => x.no === currentViewNo); dataArisan[idx].bukti = null; closeModal(); syncData(); } }
+        function toggleStatus(no, field) { const idx = dataArisan.findIndex(x => x.no === no); dataArisan[idx][field] = !dataArisan[idx][field]; syncData(); }
+        function resetData() { if(confirm("Reset semua data?")) { dataArisan = initialData.map(x => ({...x, sudah_bayar: false, done: false, bukti: null})); hasShownCelebration = false; syncData(); } }
 
         function renderData() {
             const container = document.getElementById('memberContainer');
             const statusArea = document.getElementById('finishStatusArea');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const searchInput = document.getElementById('searchInput');
+            const search = searchInput ? searchInput.value.toLowerCase() : "";
             const now = new Date();
-            const currentMonthNum = now.getMonth() + 1;
             const months = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
-            let currentMonthName = (months[now.getMonth()] === "MEI") ? "MAY" : months[now.getMonth()];
+            let curMonth = (months[now.getMonth()] === "MEI") ? "MAY" : months[now.getMonth()];
 
-            const isAllFinished = dataArisan.every(x => x.sudah_bayar && x.bukti);
-            
+            const isAllFinished = dataArisan.length > 0 && dataArisan.every(x => x.sudah_bayar && x.bukti);
             if (isAllFinished) {
-                statusArea.innerHTML = `<div class="premium-finish-label"><i class="fas fa-crown"></i> Arisan Bulan ${currentMonthNum} Telah Selesai <i class="fas fa-crown"></i></div>`;
-                if (!hasShownCelebration) {
-                    document.getElementById('celebrationText').innerText = `Arisan Bulan ${currentMonthNum} Selesai`;
-                    document.getElementById('celebrationOverlay').classList.remove('hidden');
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, zIndex: 1000 });
-                    hasShownCelebration = true;
-                }
+                statusArea.innerHTML = `<div class="premium-finish-label"><i class="fas fa-crown"></i> Arisan Telah Selesai <i class="fas fa-crown"></i></div>`;
+                if (!hasShownCelebration) { document.getElementById('celebrationOverlay').classList.remove('hidden'); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); hasShownCelebration = true; }
             } else { statusArea.innerHTML = ""; }
 
             container.innerHTML = "";
             const sorted = [...dataArisan].sort((a, b) => {
-                const aActive = a.bulan.includes(currentMonthName) && !a.done;
-                const bActive = b.bulan.includes(currentMonthName) && !b.done;
+                const aActive = a.bulan.includes(curMonth) && !a.done;
+                const bActive = b.bulan.includes(curMonth) && !b.done;
                 if (aActive && !bActive) return -1;
                 if (!aActive && bActive) return 1;
                 if (a.done !== b.done) return a.done ? 1 : -1;
@@ -360,12 +233,10 @@
             });
 
             sorted.filter(x => x.nama.toLowerCase().includes(search)).forEach(x => {
-                const isActive = x.bulan.includes(currentMonthName) && !x.done;
-                const isDone = x.done;
+                const isActive = x.bulan.includes(curMonth) && !x.done;
                 const num = x.no < 10 ? `0${x.no}` : x.no;
-
                 const card = document.createElement('div');
-                card.className = `relative overflow-hidden p-6 rounded-[32px] transition-all duration-500 ${isActive ? 'card-gold' : (isDone ? 'card-red' : 'card-normal')}`;
+                card.className = `relative overflow-hidden p-6 rounded-[32px] transition-all duration-500 ${isActive ? 'card-gold' : (x.done ? 'card-red' : 'card-normal')}`;
                 card.innerHTML = `
                     ${isActive ? `<div class="money-rain-container" id="rain-${x.no}"></div>` : ''}
                     <div class="ghost-number">${num}</div>
@@ -374,19 +245,18 @@
                         <div>
                             <span class="text-[9px] font-black tracking-[3px] uppercase ${isActive ? 'text-white/50' : 'text-slate-500'}">JADWAL: ${x.bulan}</span>
                             <h3 class="text-2xl font-extrabold uppercase tracking-tighter">${x.nama}</h3>
-                            ${isActive ? '<p class="text-[10px] text-emerald-400 font-bold mt-1 animate-pulse">ES BATU KENAK PANAS, CAERR!! 💸</p>' : (isDone ? '<p class="text-[9px] text-red-500 font-black mt-1 uppercase">Lunas Selesai</p>' : '')}
                         </div>
                         <div class="text-right">
                             <p class="text-[8px] opacity-30 uppercase font-bold">Plafon</p>
-                            <p class="text-3xl font-black ${isActive ? 'text-white' : (isDone ? 'text-red-500' : 'text-purple-500')}">70jt</p>
+                            <p class="text-3xl font-black ${isActive ? 'text-white' : (x.done ? 'text-red-500' : 'text-purple-500')}">70jt</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3 relative z-10 mb-5">
                         <button onclick="toggleStatus(${x.no}, 'sudah_bayar')" class="py-4 rounded-2xl text-[10px] font-black transition-all active:scale-95 flex items-center justify-center gap-2 ${x.sudah_bayar ? (isActive ? 'btn-active-gold' : 'bg-purple-600 text-white') : (isActive ? 'btn-glass-green' : 'bg-slate-800 text-slate-500')}">
                             <i class="fas ${x.sudah_bayar ? 'fa-check-double' : 'fa-receipt'}"></i> ${x.sudah_bayar ? 'LUNAS' : 'BAYAR'}
                         </button>
-                        <button onclick="toggleStatus(${x.no}, 'done')" class="py-4 rounded-2xl text-[10px] font-black transition-all active:scale-95 flex items-center justify-center gap-2 ${isDone ? 'bg-red-600 text-white' : (isActive ? 'btn-active-gold' : 'bg-slate-800 text-slate-500')}">
-                            <i class="fas ${isDone ? 'fa-check-circle' : 'fa-hourglass-half'}"></i> ${isDone ? 'CAIR' : 'ANTRI'}
+                        <button onclick="toggleStatus(${x.no}, 'done')" class="py-4 rounded-2xl text-[10px] font-black transition-all active:scale-95 flex items-center justify-center gap-2 ${x.done ? 'bg-red-600 text-white' : (isActive ? 'btn-active-gold' : 'bg-slate-800 text-slate-500')}">
+                            <i class="fas ${x.done ? 'fa-check-circle' : 'fa-hourglass-half'}"></i> ${x.done ? 'CAIR' : 'ANTRI'}
                         </button>
                     </div>
                     <div class="relative z-10 border-t border-white/10 pt-4">
@@ -394,7 +264,7 @@
                              <span class="text-[9px] font-bold ${isActive ? 'text-white/70' : 'text-slate-500'} uppercase tracking-widest flex items-center gap-2"><i class="fas fa-camera text-xs"></i> BUKTI TRANSFER</span>
                              <button onclick="triggerUpload(${x.no})" class="text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-purple-500/10 text-purple-400'} px-4 py-1.5 rounded-full font-bold active:scale-90 transition-all uppercase">Upload</button>
                         </div>
-                        ${x.bukti ? `<button onclick="viewBukti(${x.no}, '${x.bukti}')" class="w-full py-4 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center text-[10px] text-white font-black hover:bg-white/20 active:scale-95 transition-all uppercase tracking-[2px]"><i class="fas fa-eye mr-2"></i> LIHAT BUKTI TRANSFER</button>` : `<div class="w-full py-3 bg-black/20 rounded-xl border border-dashed border-white/10 flex items-center justify-center text-[9px] text-slate-500 italic">Belum ada bukti</div>`}
+                        ${x.bukti ? `<button onclick="viewBukti(${x.no}, '${x.bukti}')" class="w-full py-4 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center text-[10px] text-white font-black active:scale-95 transition-all uppercase tracking-[2px]"><i class="fas fa-eye mr-2"></i> LIHAT BUKTI</button>` : `<div class="w-full py-3 bg-black/20 rounded-xl border border-dashed border-white/10 flex items-center justify-center text-[9px] text-slate-500 italic">Belum ada bukti</div>`}
                     </div>
                 `;
                 container.appendChild(card);
@@ -408,26 +278,20 @@
             const c = document.getElementById(id); if (!c) return;
             for (let i = 0; i < 15; i++) {
                 let m = document.createElement('div'); m.className = 'money-particle'; m.innerHTML = '<i class="fas fa-money-bill-wave"></i>';
-                m.style.left = Math.random() * 100 + '%'; m.style.animationDuration = (Math.random() * 2 + 2) + 's'; m.style.animationDelay = `-${Math.random() * 2}s`; 
+                m.style.left = Math.random() * 100 + '%'; m.style.animationDuration = (Math.random()*2+2)+'s'; m.style.animationDelay = `-${Math.random()*2}s`; 
                 c.appendChild(m);
             }
         }
-
         function closeCelebration() { document.getElementById('celebrationOverlay').classList.add('hidden'); }
-
         function updateTime() {
             const now = new Date();
             const m = ['JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'];
             const d = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
-            document.getElementById('liveTime').innerText = 
-                now.getHours().toString().padStart(2,'0') + ":" + 
-                now.getMinutes().toString().padStart(2,'0') + ":" + 
-                now.getSeconds().toString().padStart(2,'0');
+            document.getElementById('liveTime').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0') + ":" + now.getSeconds().toString().padStart(2,'0');
             document.getElementById('liveDay').innerText = d[now.getDay()];
             document.getElementById('fullDate').innerText = `${now.getDate()} ${m[now.getMonth()]} ${now.getFullYear()}`;
         }
-
-        setInterval(updateTime, 1000); updateTime(); renderData();
+        setInterval(updateTime, 1000); updateTime();
     </script>
 </body>
 </html>
